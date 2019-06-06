@@ -21,6 +21,7 @@ class Crawler {
         this.$action = require('../actions')
         this.url = options.url
         this.screenshot = options.screenshot
+        this.pdf = options.pdf
         this.defaultView = options.defaultView
         this.context = options.context
         this.action = options.action
@@ -67,6 +68,7 @@ class Crawler {
     async todo(browser,page) {
         this.page = page
         this.browser = browser
+        await page.setRequestInterception(true)
         await this.onBrowser(browser) 
         await this.onPage(browser,page)
         await new this.$action({log: this.log_, page, type: this.action.type}).onReady()
@@ -76,12 +78,19 @@ class Crawler {
         // 监听页面关闭
         page.on('console', msg => {
             for (let i = 0; i < msg.args().length;i++)
-              this.log(`${i}: ${msg.args()[i]}`,'INFO');
+              this.log(`${i}: ${msg.args()[i]}`,'INFO')
         });
 
-        // 监听页面请求
-        page.on('request',() => {
-            this.log('页面发生请求','INFO')
+        // 监听页面请求 --- intercept过滤不必要的请求
+        page.on('request',(interceptedRequest) => {
+            const pngIntercept = interceptedRequest.url().endsWith('.png')
+            const jpgIntercept = interceptedRequest.url().endsWith('.jpg')
+            if (pngIntercept || jpgIntercept){
+                 interceptedRequest.abort()
+              }else{
+                 interceptedRequest.continue()
+            }
+            this.log('页面发生请求 --- 已拦截jpg||png资源请求','INFO')
         })
         
         // 监听页面请求失败
@@ -107,15 +116,22 @@ class Crawler {
         await this_.todo(browser,page) 
         await this_.fs.mkdirs(this_.screenshot.savePath, () => {
             this_.log(`${this_.screenshot.savePath} --> 创建完成`,'DEBUG')
-        });  
+        }); 
+        await this_.fs.mkdirs(this_.pdf.savePath, () => {
+            this_.log(`${this_.pdf.savePath} --> 创建完成`,'DEBUG')
+        }); 
 
         this_.screenshot.open ? (await page.screenshot({path: this_.screenshot.savePath + this_.screenshot.name }) 
             && this_.log(`${this_.screenshot.desc} --> 窥屏success O(∩_∩)O~`,'DEBUG'))
             : console.log(logSymbols.warning,'no open screen shot ------ [WARN    ${this.log_.name}]')
 
+        this_.pdf.open ? (await page.pdf({path: this_.pdf.savePath + this_.pdf.name ,format: this_.pdf.format}) 
+            && this_.log(`${this_.pdf.desc} --> 转成pdf success O(∩_∩)O~`,'DEBUG'))
+            : console.log(logSymbols.warning,'no open pdf shot ------ [WARN    ${this.log_.name}]')
+
         browser.version().then(res => console.log(this.logSymbols.info,`$version ---> ${res} ------ [WARN    浏览器信息]`) )
         browser.userAgent().then(res => console.log(this.logSymbols.info,`$userAgent ---> ${res} ------ [WARN    浏览器信息]`))
-        await page.waitFor(2000);
+        await page.waitFor(this_.context.delay);
         this_.context.open ? this_.newBrowser(browser) : await this_.close(browser) 
     }
 
