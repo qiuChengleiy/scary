@@ -1,3 +1,4 @@
 module.exports = {
-    Crawler: require('./Crawler')
+    Crawler: require('./Crawler'),
+    download: require('./download'),
 }

@@ -24,7 +24,7 @@ module.exports = {
     pdf: {
         desc: '哔哩哔哩首页',
         open: true,
-        name: 'bilibili.jpg',
+        name: 'bilibili.pdf',
         savePath: `./files/pdf/bilibili/`,
         format: 'A4',
     },
@@ -39,7 +39,7 @@ module.exports = {
         type: 'BILI',
     },
     log: {
-        open: true,
+        open: false,
         name: 'bilibili哔哩哔哩'
     },
     disconnected: false,
