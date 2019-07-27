@@ -1,1 +1,1 @@
-export * from './qrcode'
+module.exports = require('./robot')
