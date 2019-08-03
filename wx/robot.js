@@ -18,6 +18,7 @@ class Wx {
 
      async start() {
         await this.onLoad()
+        await this.zooms('前端进阶交流群八')
      }
 
      /**
@@ -54,10 +55,49 @@ class Wx {
      }
 
      /**
-      * @description  微信联系人
+      * @description  获取微信联系人列表
+      * @param {String} 联系人名称
       */
-     async contact() {
+     async contact(name) {
+         const bot = this.wx 
+         const contactList1 = await bot.Contact.findAll()                      
+         const contactList2 = await bot.Contact.findAll({ name })    
+         const contactList3 = await bot.Contact.findAll({ alias })  
 
+         return { contactList1, contactList2, contactList3}
+     }
+
+     /**
+      *
+      * @desc 获取微信群信息
+      * @param {String} name 群名称
+      */
+     async zooms(name) {
+       const bot = this.wx
+       const room = await bot.Room.find({topic: name})
+       const members = await room.memberAll() 
+       this.log('INFO',members)
+       
+       // 获取群公告
+       const announce = await room.announce()
+       this.log('INFO',announce)
+
+       // 获取群主信息
+       const owner = room.owner()
+       this.log('INFO',owner)
+       
+       // 获取群头像信息
+       const avat = room.avatar()
+       this.log('INFO',avat)
+     }
+
+     /**
+      * @description 向微信群发送消息
+      * @param {Object} room 当前的聊天室
+      * @param {String} mes 消息内容
+      */
+     async sendZoomMes(room,mes) {
+       await room.say('Hello world!')
      }
 
      /**

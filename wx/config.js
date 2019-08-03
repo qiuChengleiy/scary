@@ -7,4 +7,5 @@
 module.exports = {
     qrCode: 'terminal',
     saveMes: './wx.message.json',
+    contacts: './wx.contacts.json',
 }
