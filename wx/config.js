@@ -6,6 +6,8 @@
 
 module.exports = {
     qrCode: 'terminal',
-    saveMes: './wx.message.json',
-    contacts: './wx.contacts.json',
+    saveMes: './db/wx.message.json',
+    contacts: './db/wx.contacts.json',
+    zoomNumbers: './db/wx.zoom.json',
+    dir: './db/'
 }

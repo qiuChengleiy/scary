@@ -28,5 +28,8 @@
     "supervisor": "^0.12.0",
     "wechaty": "^0.26.1",
     "yauzl": "^2.10.0"
+  },
+  "dependencies": {
+    "wechaty-puppet-puppeteer": "^0.16.1"
   }
 }

@@ -10,7 +10,7 @@ const config = require('./config')
   * @param {String} qrcode 
   * @param {Boolean} status 
   */
-export async function onScan (qrcode, status) {
+ async function onScan (qrcode, status) {
     // 在console端显示二维码
     if(config.qrCode == 'terminal') {
       await require('qrcode-terminal').generate(qrcode)  
@@ -28,7 +28,7 @@ export async function onScan (qrcode, status) {
  * @description 登录回调
  * @param {String} user 用户名称 
  */
-export async function onLogin (user) {
+async function onLogin (user) {
   console.log(`温馨提示您${user}登录了`)
 
 }
@@ -37,9 +37,16 @@ export async function onLogin (user) {
  * @description 退出回调
  * @param {String} user 用户名称 
  */
-export async function onLogout (user) {
+async function onLogout (user) {
   console.log(`温馨提示您${user}下线了`)
 
+}
+
+
+module.exports = {
+  onLogin,
+  onLogout,
+  onScan,
 }
 
 

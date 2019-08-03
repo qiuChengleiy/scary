@@ -6,7 +6,8 @@
 
 const { Wechaty, Friendship } = require('wechaty')
 const config = require('./config')
-import { onScan, onLogin, onLogout } from './action'
+const { onScan, onLogin, onLogout } = require('./action')
+const fs = require('../utils/fs')
 
  /**
   * @description 微信机器人类
@@ -18,7 +19,6 @@ class Wx {
 
      async start() {
         await this.onLoad()
-        await this.zooms('前端进阶交流群八')
      }
 
      /**
@@ -36,7 +36,7 @@ class Wx {
         wx.on('logout',  onLogout)
         // 监听微信消息
         wx.on('message', message => onMessage(message))
-       
+
      }
 
      /**
@@ -44,12 +44,12 @@ class Wx {
       * @param {Object} mes  消息对象
       */
      async onMessage(mes) {
-        this.log('当前收到好友信息 ---->',
-          `sender: ${mes.from()} 
-           receiver: ${mes.to()}
-           room: ${mes.room()}
-           textMessage: ${mes.text()}
-           annexMessage: ${mes.toFileBox()}
+        console.log(
+         `当前收到好友信息 ---->
+                  sender: ${mes.from()} 
+                  receiver: ${mes.to()}
+                  room: ${mes.room()}
+                  textMessage: ${mes.text()}
           `
         )
      }
@@ -75,20 +75,38 @@ class Wx {
      async zooms(name) {
        const bot = this.wx
        const room = await bot.Room.find({topic: name})
-       const members = await room.memberAll() 
-       this.log('INFO',members)
-       
-       // 获取群公告
-       const announce = await room.announce()
-       this.log('INFO',announce)
 
-       // 获取群主信息
-       const owner = room.owner()
-       this.log('INFO',owner)
+      const members = await room.memberAll()
+      console.log('INFO',members)
+
+       const param = {
+         dir: config.dir,
+         data: JSON.stringify(members),
+         name: config.zoomNumbers,
+      }
+
+      await fs.mkdirs(param.dir, () => {
+            console.log(`${param.dir} --> 创建完成`,'DEBUG')
+      }); 
+
+      await fs.writeJSON(param)
+
+      console.log('数据采集完成~~~')
        
-       // 获取群头像信息
-       const avat = room.avatar()
-       this.log('INFO',avat)
+
+       const otherInfo = () => {
+         // 获取群公告
+         // const announce = await room.announce()
+         // console.log('INFO',announce)
+
+         // 获取群主信息
+         // const owner = room.owner()
+         // console.log('INFO',owner)
+         
+         // 获取群头像信息
+         // const avat = room.avatar()
+         // console.log('INFO',avat)
+       }
      }
 
      /**
@@ -104,19 +122,13 @@ class Wx {
       * @description 程序加载时执行
       */
      async onLoad() { 
+        await this.onEvent()
         // 登录微信
-        this.wx.start()
-            .then(() => this.log('当前信息 ----> ','开始登陆微信'))
-            .catch(err => this.log('捕获到异常信息 ----->',err))
-     }
+        await this.wx.start()
+            .then(() => console.log('当前信息 ----> ','开始登陆微信'))
+            .catch(err => console.log('捕获到异常信息 ----->',err))
 
-     /**
-      * @description  日志输出
-      * @param {String} status  日志状态
-      * @param {String} info   日志信息
-      */
-     log(status,info) {
-         console.log(`${status} ----->  ${info}`)
+        setTimeout(() => this.zooms('前端进阶交流群八'),10000)
      }
  }
 
